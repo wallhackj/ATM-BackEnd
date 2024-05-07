@@ -1,66 +1,53 @@
 package org.wallhack.backend;
 
+import org.wallhack.backend.database.authorization.Data;
+import org.wallhack.backend.database.DatabaseConnection;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.wallhack.backend.database.authorization.LoginVerification.verifyLogin;
+
 public class Main {
     public static void main(String[] args) {
+        DatabaseConnection dbConnection = DatabaseConnection.getInstance();
+        Connection connection = dbConnection.getConnection();
 
-        String url = "";
-        String user = "postgres";
-        String password = "";
 
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
+
 
         try {
-            Class.forName("org.postgresql.Driver");
+            // Obțineți instanța singleton a conexiunii la baza de date
+          //  System.out.println(verifyLogin(user1, connection));
 
-            connection = DriverManager.getConnection(url, user, password);
 
-            statement = connection.createStatement();
-
-            String query = "SELECT * FROM users";
-            resultSet = statement.executeQuery(query);
+            // Utilizați conexiunea pentru a executa o interogare și a afișa rezultatele
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String firstName = resultSet.getString("firstName");
                 String lastName = resultSet.getString("lastName");
-                String email = resultSet.getString("email");
-                String street = resultSet.getString("street");
-                String city = resultSet.getString("city");
-                String region = resultSet.getString("region");
-                int postalCode = resultSet.getInt("postal_code");
-                String phone = resultSet.getString("phone");
-                String sex = resultSet.getString("sex");
-                String birthDay = resultSet.getString("birthDay");
-                long idnp = resultSet.getLong("idnp");
-                String registerDate = resultSet.getString("register_date");
-
-                System.out.println("ID: " + id + ", First Name: " + firstName + ", Last Name: " + lastName +
-                        ", Email: " + email + ", Street: " + street + ", City: " + city +
-                        ", Region: " + region + ", Postal Code: " + postalCode + ", Phone: " + phone +
-                        ", Sex: " + sex + ", BirthDay: " + birthDay + ", IDNP: " + idnp +
-                        ", Register Date: " + registerDate);
+                // Afișați informațiile dorite sau realizați alte operații cu datele
+                System.out.println("ID: " + id + ", First Name: " + firstName + ", Last Name: " + lastName);
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+
+            // Închideți resursele
+            resultSet.close();
+            statement.close();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            // Închiderea resurselor
-            try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = result * 31 + super.hashCode();
+        return result;
     }
 }
